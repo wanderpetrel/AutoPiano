@@ -24,9 +24,21 @@ jobs:
       - name: Install Dependencies
         run: yarn install --frozen-lockfile --ignore-engines
 
-      # 4. 强行执行打包
+      # 4. 强行执行打包并自动精准修补 index.html
       - name: Build Project
-        run: npx webpack --config build/webpack.prod.conf.js
+        run: |
+          # 1. 正常跑 Webpack 打包（生成 static/js 和 static/png）
+          npx webpack --config build/webpack.conf.js
+          
+          # 2. 把根目录的 index.html 复制到 dist 目录
+          cp index.html dist/
+          
+          # 3. 循环遍历打包出的 3 个 JS 文件，并把绝对路径变成相对路径，精准替换掉那句注释
+          cd dist
+          for jsfile in static/js/*.js; do
+            # 将带有哈希值的 js 文件包装成 <script> 标签，插入到注释行的上方
+            sed -i "s||<script type=\"text/javascript\" src=\"$jsfile\"></script>\n|g" index.html
+          done
 
       # 5. 部署（如果不需要可以删掉）
       - name: Deploy to GitHub Pages
