@@ -1,0 +1,29 @@
+name: Build and Deploy AutoPiano
+
+on:
+  push:
+    branches:
+      - master # 如果你的主分支叫 main，请改为 main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-20.04 # 使用较旧但稳定的系统镜像，对老版本 Node 兼容性更好
+
+    steps:
+      # 1. 拉取你的代码
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # 2. 锁定并安装老版本的 Node.js（这里强制使用 v10，完美契合你的 Webpack 2）
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '10'
+
+      # 3. 安装依赖（使用 yarn）
+      - name: Install Dependencies
+        run: yarn install --frozen-lockfile
+
+      # 4. 强行执行 Webpack 打包
+      - name: Build Project
+        run: npx webpack --config build/webpack.prod.conf.js
