@@ -27,3 +27,10 @@ jobs:
       # 4. 强行执行打包
       - name: Build Project
         run: npx webpack --config build/webpack.prod.conf.js
+
+      # 🌟 新增这一步：把 dist 文件夹变成打包产物供下载
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: autopiano-static-dist   # 压缩包的名字
+          path: dist/                   # 要打包下载的文件夹路径
